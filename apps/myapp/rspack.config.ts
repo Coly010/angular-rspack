@@ -217,6 +217,13 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
         aot: true,
         scriptsOptimization: false
       }),
+      new StylesWebpackPlugin({
+        root: __dirname,
+        entryPoints: {
+          styles: ['src/styles.css'],
+        },
+        preserveSymlinks: false,
+      }),
       new CopyRspackPlugin({
         patterns: [
           {
