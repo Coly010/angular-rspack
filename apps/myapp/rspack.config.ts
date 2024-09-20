@@ -1,9 +1,7 @@
 import { composePlugins, withNx, withWeb } from '@nx/rspack';
 import {
   HtmlRspackPlugin,
-  SwcJsMinimizerRspackPlugin,
-  CopyRspackPlugin,
-  javascript, Compiler,
+  CopyRspackPlugin, CssExtractRspackPlugin
 } from '@rspack/core';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -14,7 +12,10 @@ const browserslist = require('browserslist');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const terserPlugin =  require('terser-webpack-plugin');
 import { AngularWebpackPlugin } from '@angular-rspack/tools/webpack/ivy';
-import { ProgressPlugin, CssExtractRspackPlugin } from '@rspack/core';
+import { DedupeModuleResolvePlugin } from '@angular-devkit/build-angular/src/tools/webpack/plugins/dedupe-module-resolve-plugin';
+import { NamedChunksPlugin } from '@angular-devkit/build-angular/src/tools/webpack/plugins/named-chunks-plugin';
+import { OccurrencesPlugin } from '@angular-devkit/build-angular/src/tools/webpack/plugins/occurrences-plugin';
+import { ProgressPlugin } from '@rspack/core';
 import {
   getSupportedBrowsers,
 } from '@angular/build/private';
@@ -47,9 +48,8 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
    */
   const config = {
     ...baseConfig,
-    infrastructureLogging: {
-      level: 'verbose',  // 'log' for less detail or 'verbose' for more
-    },
+    context: join(workspaceRoot, "apps/myapp"),
+
     mode: 'production',
     devtool: false,
     target: ['web', 'es2015'],
@@ -59,12 +59,11 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.mjs', '.js'],
-      modules: ['node_modules'],
-      mainFields: ['es2020', 'es2015', 'browser', 'module', 'main'],
-      conditionNames: ['es2020', 'es2015', '...'],
+      // modules: ['node_modules'],
+      // mainFields: ['es2020', 'es2015', 'browser', 'module', 'main'],
+      // conditionNames: ['es2020', 'es2015', '...'],
       tsConfig: resolve(__dirname, './tsconfig.app.json'),
     },
-    context: __dirname,
     devServer: {
       client: {
         overlay: {
@@ -77,15 +76,17 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
     node: false,
     output: {
       uniqueName: 'host',
+      hashFunction: 'xxhash64',
       clean: true,
       path: resolve(workspaceRoot, ctx.options.outputPath),
       filename: '[name].[contenthash:20].js',
       chunkFilename: '[name].[contenthash:20].js',
-      crossOriginLoading: 'anonymous',
+      crossOriginLoading: false,
       trustedTypes: 'angular#bundler',
       scriptType: 'module',
     },
     watch: false,
+    performance: { hints: false },
     experiments: {
       asyncWebAssembly: true,
       topLevelAwait: false,
@@ -100,20 +101,16 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
       },
       rules: [
         // Global assets
-        {
-          test: /\.?(sa|sc|c)ss$/,
-          resourceQuery: /\?ngGlobalStyle/,
-          use: [
-            {
-              loader: 'sass-loader',
-              options: {
-                api: 'modern-compiler',
-                implementation: require.resolve('sass-embedded'),
-              },
-            },
-          ],
-          type: 'css',
-        },
+        // {
+        //   test: /\.?(sa|sc|c)ss$/,
+        //   resourceQuery: /\?ngGlobalStyle/,
+        //   use: [
+        //     {
+        //       loader: 'sass-loader',
+        //     },
+        //   ],
+        //   type: 'css',
+        // },
 
         // Component templates
         {
@@ -123,7 +120,7 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
         },
         // Component styles
         {
-          test: /\.?(sa|sc|c)ss$/,
+          test: /\.?(scss)$/,
           resourceQuery: /\?ngResource/,
           use: [
             {
@@ -131,10 +128,26 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
             },
             {
               loader: 'sass-loader',
-              options: {
-                api: 'modern-compiler',
-                implementation: require.resolve('sass-embedded'),
-              },
+              // options: {
+              //   api: 'modern-compiler',
+              //   implementation: require.resolve('sass-embedded'),
+              // },
+            },
+          ],
+        },
+        {
+          test: /\.?(css)$/,
+          resourceQuery: /\?ngResource/,
+          use: [
+            {
+              loader: require.resolve('raw-loader'),
+            },
+            {
+              loader: 'sass-loader',
+              // options: {
+              //   api: 'modern-compiler',
+              //   implementation: require.resolve('sass-embedded'),
+              // },
             },
           ],
         },
@@ -154,7 +167,10 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
           ],
           use: [
             {
-              loader: join(workspaceRoot, "tools/babel/rspack-loader.ts"),
+              // loader: join(workspaceRoot, "tools/babel/rspack-loader.ts"),
+              loader: require.resolve(
+                '@angular-devkit/build-angular/src/tools/babel/webpack-loader.js'
+              ),
               options: {
                 cacheDirectory: false,
                 aot: true,
@@ -167,7 +183,8 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
         {
           test: /\.[cm]?tsx?$/,
           use: [
-            { loader: join(workspaceRoot, "tools/webpack/loader.ts") },
+            // { loader: join(workspaceRoot, "tools/webpack/loader.ts") },
+            {loader: require.resolve('@ngtools/webpack/src/ivy/index.js')}
           ],
           exclude: [
             /[\\/]node_modules[/\\](?:css-loader|mini-css-extract-plugin|webpack-dev-server|webpack)[/\\]/,
@@ -190,16 +207,15 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
           sourcemap: false,
         }),
         new TransferSizePlugin(),
-        // new CssOptimizerPlugin(),
+        new CssOptimizerPlugin(),
       ],
     },
     plugins: [
-      new StylesWebpackPlugin({
-        root: __dirname,
-        entryPoints: {
-          styles: ['src/styles.css'],
-        },
-        preserveSymlinks: false,
+      new DedupeModuleResolvePlugin(),
+      new NamedChunksPlugin(),
+      new OccurrencesPlugin({
+        aot: true,
+        scriptsOptimization: false
       }),
       new CopyRspackPlugin({
         patterns: [
@@ -217,7 +233,7 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
         profile: false
         // profile: true
       }),
-      // new CssExtractRspackPlugin(),
+      new CssExtractRspackPlugin(),
       new HtmlRspackPlugin({
         minify: false,
         inject: 'body',
@@ -229,6 +245,8 @@ module.exports = composePlugins(withNx(), withWeb(), (baseConfig, ctx) => {
         emitClassMetadata: false,
         emitNgModuleScope: false,
         jitMode: false,
+        fileReplacements: {},
+        substitutions: {},
         directTemplateLoading: true,
         compilerOptions: {
           sourceMap: false,
