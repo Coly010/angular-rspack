@@ -2,7 +2,9 @@
   "name": "@angular-rspack/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "generate-libraries": "ts-node tools/generate-libs.ts"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/build-angular": "~18.2.0",

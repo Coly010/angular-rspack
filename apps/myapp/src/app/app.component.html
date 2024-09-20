@@ -1,1 +1,9 @@
-<app-nx-welcome></app-nx-welcome> <router-outlet></router-outlet>
+<div>
+  <select [(ngModel)]="routeToNavigateTo" style="padding: 4px;  margin: 4px; border: 1px solid gray; border-radius: 1em;">
+    <option value="">Select Route to navigate to</option>
+    <!-- OPTIONS -->
+  </select>
+  <button (click)="navigate()" style="padding: 8px; margin: 4px; border: 1px solid gray; border-radius: 1em;">Navigate</button>
+</div>
+<router-outlet></router-outlet>
+<app-nx-welcome></app-nx-welcome>
