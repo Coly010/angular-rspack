@@ -5,7 +5,7 @@ import { logger } from 'nx/src/utils/logger';
 import { workspaceRoot } from '@nx/devkit';
 
 const STARTING_LIB_INDEX = 0;
-const NUMBER_OF_LIBS = 100;
+const NUMBER_OF_LIBS = 1000;
 const APP_TO_ATTACH_LIBS = 'myapp';
 const PATH_TO_PARENT_ROUTES = `apps/${APP_TO_ATTACH_LIBS}/src/app/app.routes.ts`;
 const PATH_TO_APP_COMPONENT_TEMPLATE = `apps/${APP_TO_ATTACH_LIBS}/src/app/app.component.html`;
