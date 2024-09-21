@@ -1,7 +1,7 @@
 import { Configuration, DefinePlugin, HtmlRspackPlugin } from '@rspack/core';
-import { join, resolve } from 'path';
+import { resolve } from 'path';
 import { workspaceRoot } from '@nx/devkit';
-import { AngularRspackPlugin } from '@angular-rspack/tools/esbuild/plugins/angular';
+import { AngularRspackPlugin } from '@ng-rspack/build';
 
 const config: Configuration = {
   context: __dirname,
@@ -55,10 +55,7 @@ const config: Configuration = {
             },
           },
           {
-            loader: join(
-              workspaceRoot,
-              'tools/esbuild/plugins/loaders/dist/angular-loader.js'
-            ),
+            loader: require.resolve("@ng-rspack/build/src/lib/loaders/angular-loader.js"),
           },
         ],
       },
@@ -66,10 +63,7 @@ const config: Configuration = {
         test: /\.[cm]?js$/,
         use: [
           {
-            loader: join(
-              workspaceRoot,
-              'tools/esbuild/plugins/loaders/dist/js-loader.js'
-            ),
+            loader: require.resolve("@ng-rspack/build/src/lib/loaders/js-loader.js")
           },
         ],
       },
