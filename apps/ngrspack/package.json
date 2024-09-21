@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "dbg": "npx nx build-rs ngrspack"
+  }
+}

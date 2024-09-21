@@ -15,7 +15,6 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@angular-rspack/tools/*": ["tools/*"],
       "@angular-rspack/lib1": ["libs/lib1/src/index.ts"],
       "@angular-rspack/lib10": ["libs/lib10/src/index.ts"],
       "@angular-rspack/lib100": ["libs/lib100/src/index.ts"],
@@ -815,7 +814,8 @@
       "@angular-rspack/lib96": ["libs/lib96/src/index.ts"],
       "@angular-rspack/lib97": ["libs/lib97/src/index.ts"],
       "@angular-rspack/lib98": ["libs/lib98/src/index.ts"],
-      "@angular-rspack/lib99": ["libs/lib99/src/index.ts"]
+      "@angular-rspack/lib99": ["libs/lib99/src/index.ts"],
+      "@angular-rspack/tools/*": ["tools/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

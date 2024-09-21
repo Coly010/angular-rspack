@@ -1,0 +1,116 @@
+{
+  "name": "ngrspack",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/ngrspack/src",
+  "tags": [],
+  "targets": {
+    "build-rs": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/apps/ngrspack",
+        "main": "apps/ngrspack/src/main.ts",
+        "tsConfig": "tsconfig.app.json",
+        "rspackConfig": "apps/ngrspack/rspack.config.ts",
+        "assets": [
+          "apps/ngrspack/public/favicon.ico",
+          "apps/ngrspack/public"
+        ]
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false
+        }
+      }
+    },
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/ngrspack",
+        "index": "apps/ngrspack/src/index.html",
+        "browser": "apps/ngrspack/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/ngrspack/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/ngrspack/public"
+          }
+        ],
+        "styles": ["apps/ngrspack/src/styles.css"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "ngrspack:build:production"
+        },
+        "development": {
+          "buildTarget": "ngrspack:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "buildTarget": "ngrspack:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/ngrspack/jest.config.ts"
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "ngrspack:build",
+        "staticFilePath": "dist/apps/ngrspack/browser",
+        "spa": true
+      }
+    }
+  }
+}

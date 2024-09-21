@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "generate-libraries": "ts-node tools/generate-libs.ts",
-    "buid-rs": "npx nx build-rs myapp"
+    "buid-rs": "npx nx build-rs ngrspack"
   },
   "private": true,
   "devDependencies": {
