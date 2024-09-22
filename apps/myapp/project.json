@@ -16,7 +16,7 @@
         "target": "web",
         "outputPath": "dist/apps/myapp-rs",
         "main": "apps/myapp/src/main.ts",
-        "tsConfig": "apps/myapp/tsconfig.app.json",
+        "tsConfig": "./tsconfig.app.json",
         "rspackConfig": "apps/myapp/rspack.config.ts",
         "assets": [
           "apps/myapp/public/favicon.ico",

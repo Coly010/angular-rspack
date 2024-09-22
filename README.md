@@ -1,6 +1,7 @@
 # Nx Workspace containing an Angular application built with Rspack
 
-Pre-requisite: Need to update `@angular/build`'s `package.json` to add the following to the exports:
-"./src/tools/esbuild/javascript-transformer": "./src/tools/esbuild/javascript-transformer.js",
-"./src/tools/esbuild/angular/file-reference-tracker": "./src/tools/esbuild/angular/file-reference-tracker.js",
-"./src/tools/angular/compilation/parallel-compilation": "./src/tools/angular/compilation/parallel-compilation.js",
+Uses [@ng-rspack/build](https://www.npmjs.com/package/@ng-rspack/build).
+
+- `myapp` contains an Angular application with 800 libraries, each with a single lib.
+- Each lib is lazy-loaded via routing in the app
+- To run: `cd apps/myapp` then `npx nx build-rs myapp`

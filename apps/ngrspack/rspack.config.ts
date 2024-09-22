@@ -1,12 +1,11 @@
 import { Configuration, DefinePlugin, HtmlRspackPlugin } from '@rspack/core';
-import { resolve } from 'path';
+import { join, resolve } from 'path';
 import { workspaceRoot } from '@nx/devkit';
 import { AngularRspackPlugin } from '@ng-rspack/build';
 
 const config: Configuration = {
   context: __dirname,
-  mode: 'development',
-  cache: false,
+  mode: 'production',
   target: 'web',
   entry: {
     main: './src/main.ts',
@@ -17,8 +16,8 @@ const config: Configuration = {
     hashFunction: 'xxhash64',
     clean: true,
     path: resolve(workspaceRoot, 'dist/apps/ngrspack'),
-    filename: '[name].[contenthash:20].js',
-    chunkFilename: '[name].[contenthash:20].js',
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[name].[contenthash].js',
     crossOriginLoading: false,
     trustedTypes: 'angular#bundler',
     scriptType: 'module',
@@ -31,7 +30,7 @@ const config: Configuration = {
     tsConfig: resolve(__dirname, './tsconfig.app.json'),
   },
   optimization: {
-    minimize: false,
+    minimize: true,
   },
   module: {
     parser: {
@@ -63,7 +62,7 @@ const config: Configuration = {
         test: /\.[cm]?js$/,
         use: [
           {
-            loader: require.resolve("@ng-rspack/build/src/lib/loaders/js-loader.js")
+            loader: require.resolve("@ng-rspack/build/src/lib/loaders/js-loader.js"),
           },
         ],
       },
