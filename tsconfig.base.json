@@ -814,7 +814,7 @@
       "@angular-rspack/lib96": ["libs/lib96/src/index.ts"],
       "@angular-rspack/lib97": ["libs/lib97/src/index.ts"],
       "@angular-rspack/lib98": ["libs/lib98/src/index.ts"],
-      "@angular-rspack/lib99": ["libs/lib99/src/index.ts"],
+      "@angular-rspack/lib99": ["libs/lib99/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

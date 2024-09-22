@@ -1,0 +1,9 @@
+{
+  "name": "scssapp-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/scssapp-e2e/src",
+  "implicitDependencies": ["scssapp"],
+  "// targets": "to see all targets run: nx show project scssapp-e2e --web",
+  "targets": {}
+}
