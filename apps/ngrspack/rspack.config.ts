@@ -1,4 +1,11 @@
-import { Configuration, DefinePlugin, HtmlRspackPlugin } from '@rspack/core';
+import {
+  Configuration,
+  CopyRspackPlugin,
+  DefinePlugin,
+  HtmlRspackPlugin,
+  ProvidePlugin,
+  SwcJsMinimizerRspackPlugin
+} from '@rspack/core';
 import { join, resolve } from 'path';
 import { workspaceRoot } from '@nx/devkit';
 import { AngularRspackPlugin } from '@ng-rspack/build';
@@ -7,6 +14,7 @@ const config: Configuration = {
   context: __dirname,
   mode: 'production',
   target: 'web',
+  cache: true,
   entry: {
     main: './src/main.ts',
     polyfills: ['zone.js'],
@@ -31,6 +39,30 @@ const config: Configuration = {
   },
   optimization: {
     minimize: true,
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      minChunks: 1,
+      minSize: 20000,
+      maxAsyncRequests: 30,
+      maxInitialRequests: 30,
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
+    },
+    minimizer: [new SwcJsMinimizerRspackPlugin()]
+  },
+  experiments: {
+    css: true
   },
   module: {
     parser: {
@@ -40,6 +72,7 @@ const config: Configuration = {
       },
     },
     rules: [
+      { test: /[/\\]rxjs[/\\]add[/\\].+\.js$/, sideEffects: true },
       {
         test: /\.[cm]?[jt]sx?$/,
         use: [
@@ -72,6 +105,18 @@ const config: Configuration = {
     new DefinePlugin({
       ngDevMode: 'false',
       ngJitMode: 'false',
+    }),
+    new CopyRspackPlugin({
+      patterns: [
+        {
+          from: 'public',
+          to: '.',
+          globOptions: {
+            dot: false,
+          },
+          noErrorOnMissing: true,
+        },
+      ],
     }),
     new HtmlRspackPlugin({
       minify: false,
