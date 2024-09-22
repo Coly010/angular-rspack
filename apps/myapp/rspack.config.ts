@@ -1,7 +1,19 @@
-import { Configuration, DefinePlugin, HtmlRspackPlugin } from '@rspack/core';
+import { Compiler, Configuration, DefinePlugin, HtmlRspackPlugin, SwcJsMinimizerRspackPlugin } from '@rspack/core';
 import { join, resolve } from 'path';
 import { workspaceRoot } from '@nx/devkit';
 import { AngularRspackPlugin } from '@ng-rspack/build';
+
+export class RxJsEsmResolutionPlugin {
+  apply(compiler: Compiler) {
+    compiler.hooks.normalModuleFactory.tap('PlUGIN', (normalModuleFactory) => {
+      normalModuleFactory.hooks.resolve.tap('PLUGIN', (data) => {
+        if (data.request.startsWith("rxjs")) {
+          data.request = data.request.replace(/([\\/]dist[\\/])cjs([\\/])/, '$1esm$2');
+        }
+      })
+    })
+  }
+}
 
 const config: Configuration = {
   context: __dirname,
@@ -21,6 +33,7 @@ const config: Configuration = {
     crossOriginLoading: false,
     trustedTypes: 'angular#bundler',
     scriptType: 'module',
+    module: true
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.mjs', '.js'],
@@ -30,7 +43,28 @@ const config: Configuration = {
     tsConfig: resolve(__dirname, './tsconfig.app.json'),
   },
   optimization: {
-    minimize: false,
+    minimize: true,
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      minChunks: 1,
+      minSize: 20000,
+      maxAsyncRequests: 30,
+      maxInitialRequests: 30,
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
+    },
+    minimizer: [new SwcJsMinimizerRspackPlugin()]
   },
   module: {
     parser: {
@@ -79,6 +113,7 @@ const config: Configuration = {
       scriptLoading: 'module',
       template: 'src/index.html',
     }),
+    new RxJsEsmResolutionPlugin(),
     new AngularRspackPlugin({
       tsconfig: resolve(__dirname, './tsconfig.app.json'),
     }),

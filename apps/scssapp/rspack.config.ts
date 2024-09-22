@@ -11,6 +11,18 @@ import { join, resolve } from 'path';
 import { workspaceRoot } from '@nx/devkit';
 import { AngularRspackPlugin } from '@ng-rspack/build';
 
+export class RxJsEsmResolutionPlugin {
+  apply(compiler: Compiler) {
+    compiler.hooks.normalModuleFactory.tap('PlUGIN', (normalModuleFactory) => {
+      normalModuleFactory.hooks.resolve.tap('PLUGIN', (data) => {
+          if (data.request.startsWith("rxjs")) {
+            data.request = data.request.replace(/([\\/]dist[\\/])cjs([\\/])/, '$1esm$2');
+          }
+      })
+    })
+  }
+}
+
 const config: Configuration = {
   context: __dirname,
   mode: 'production',
@@ -24,7 +36,7 @@ const config: Configuration = {
   output: {
     uniqueName: 'scssapp',
     hashFunction: 'xxhash64',
-    publicPath: '/',
+    publicPath: 'auto',
     clean: true,
     path: resolve(workspaceRoot, 'dist/apps/scssapp'),
     cssFilename: '[name].[contenthash].css',
@@ -33,6 +45,7 @@ const config: Configuration = {
     crossOriginLoading: false,
     trustedTypes: 'angular#bundler',
     scriptType: 'module',
+    module: true
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.mjs', '.js'],
@@ -144,6 +157,7 @@ const config: Configuration = {
       scriptLoading: 'module',
       template: 'src/index.html',
     }),
+    new RxJsEsmResolutionPlugin(),
     new AngularRspackPlugin({
       tsconfig: resolve(__dirname, './tsconfig.app.json'),
     }),
